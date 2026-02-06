@@ -1,1 +1,4 @@
-body { background-color: "#ADD8E6"; font-family: Arial; }
+body {
+    background-color: #ADD8E6; /* Corrected, no quotes around the hex code */
+    font-family: Arial;
+}
