@@ -1,0 +1,51 @@
+- hosts: web
+  become: yes
+  vars:
+    repo_url: "https://github.com/Sriram-190/aws-capstone-exam.git"
+  tasks:
+    - name: Install Apache + PHP + Git + MySQL client
+      yum:
+        name:
+          - httpd
+          - php
+          - php-mysqlnd
+          - git
+          - mariadb
+        state: present
+
+    - name: Start Apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Pull repo
+      git:
+        repo: "{{ repo_url }}"
+        dest: /tmp/aws-capstone-exam
+        version: main
+        force: yes
+
+    - name: Deploy webapp to /var/www/html
+      copy:
+        src: /tmp/aws-capstone-exam/webapp/
+        dest: /var/www/html/
+        remote_src: yes
+
+    - name: Create db_check.php (bonus)
+      copy:
+        dest: /var/www/html/db_check.php
+        content: |
+          <?php
+          $host = "{{ rds_endpoint }}";
+          $user = "admin";
+          $pass = "Admin12345!";
+          $db   = "streamlinedb";
+          $conn = new mysqli($host, $user, $pass, $db);
+          if ($conn->connect_error) {
+            http_response_code(500);
+            echo "DB Connection Failed: " . $conn->connect_error;
+          } else {
+            echo "Database Connected Successfully";
+          }
+          ?>
